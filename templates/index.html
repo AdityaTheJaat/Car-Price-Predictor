@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <link>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Price Predictor</title>
+    <link rel="stylesheet" href="/static/css/styles.css" >
+    <link rel="stylesheet" href="/static/css/output.css" >
+  </head>
+  <body class="bg-slate-700">
+    <div class="container flex-row w-11/12 text-center m-auto mt-24 rounded-3xl p-10 bg-slate-200">
+      <div class="text-7xl">Welcome to Car Price Predictor</div><br />
+      <div class="">
+        <p class="text-3xl">This App predicts the price of the car you want to sell.</p>
+        <p class="text-3xl">Try filling the details below!</p><br />
+        <form method="post" class="w-2/3 mx-auto flex-row space-y-3">
+          <div class="flex justify-between items-center">
+            <p class="text-xl">Select the Company:</p>
+            <select class="px-5 py-2" id="company" name="company" required="1" onchange="load_car_models(this.id, 'model')" >
+              <option value="">Select Company</option>
+              {% for company in companies %}
+                <option value="{{ company }}">{{ company }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="flex justify-between items-center">
+            <p class="text-xl">Select the Model:</p>
+            <select class="px-5 py-2" id="model" name="model" required="1" >
+              <option value="">Select Car Model</option>
+            </select>
+          </div>
+          <div class="flex justify-between items-center">
+            <p class="text-xl">Select the Year of Purchase:</p>
+            <select class="px-5 py-2" id="year" name="year" required="1" >
+              <option value="">Select Purchase Year</option>
+              {% for year in years %}
+                <option value="{{ year }}">{{ year }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="flex justify-between items-center">
+            <p class="text-xl">Select Fuel Type:</p>
+            <select class="px-5 py-2" id="fuel" name="fuel" required="1" >
+              <option value="">Select Fuel Type</option>
+              {% for fuel in fuel_type %}
+                <option value="{{ fuel }}">{{ fuel }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="flex justify-between items-center">
+            <p class="text-xl">Enter Kilometers Travelled:</p>
+            <input class="px-3 py-2" id="kms_driven" name="kms_driven" placeholder="kms_driven" type="text" required="1" />
+          </div>
+          <button class="bg-green-500 rounded-2xl px-5 py-2 text-white" onclick="send_data()">Predict Price</button>
+        </form>
+      </div>
+      <br />
+      <div>
+        <p class="text-4xl" id="prediction"></p>
+      </div>
+    </div>
+    <script>
+      function load_car_models(company_id, car_model_id){
+        var company = document.getElementById(company_id);
+        var car_model = document.getElementById(car_model_id);
+        car_model.value = "";
+        car_model.innerHTML = "";
+        {% for cmpny in companies %}
+          if(company.value == "{{ cmpny }}"){
+            {% for model in car_models %}
+              {% if cmpny in model %}
+                var newOption = document.createElement("option");
+                newOption.innerHTML = "{{ model }}";
+                newOption.value = "{{ model }}";
+                car_model.add(newOption);
+              {% endif %}
+            {% endfor %}
+          }
+        {% endfor %}
+      }
+
+      function form_handler(event){
+        event.preventDefault();
+      }
+
+      function send_data(){
+        document.querySelector("form").addEventListener("submit", form_handler);
+        var data = new FormData(document.querySelector("form"));
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/predict", true);
+        document.getElementById("prediction").innerHTML = "Predicting...";
+        xhr.onreadystatechange = function(){
+          if(xhr.readyState == XMLHttpRequest.DONE){
+            document.getElementById("prediction").innerHTML = "Predicted Price: " + xhr.responseText;
+          }
+        }
+        xhr.onload= function(){};
+        xhr.send(data);
+      }
+    </script>
+  </body>
+</html>
