@@ -1,3 +1,4 @@
 /node_modules
 keypair
 *.pub
+.DS_Store
